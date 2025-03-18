@@ -5,18 +5,19 @@ public class Calc {
 
         exp = exp.replace("- ", "+ -");
 
-        boolean needToPlus = exp.contains("+");
-        boolean needToMinus = exp.contains("-");
+//        boolean needToPlus = exp.contains("+");
+//        boolean needToMinus = exp.contains("-");
 
+        String bits = exp.split(" \\+ ");
 
-        String[] bits = null;
-
-
-        if (needToPlus) {
-            bits = exp.split(" \\+ ");
-        } else if (needToMinus) {
-            bits = exp.split(" - ");
-        }
+//        String[] bits = null;
+//
+//
+//        if (needToPlus) {
+//            bits = exp.split(" \\+ ");
+//        } else if (needToMinus) {
+//            bits = exp.split(" - ");
+//        }
 
         int a = Integer.parseInt(bits[0]);
         int b = Integer.parseInt(bits[1]);
