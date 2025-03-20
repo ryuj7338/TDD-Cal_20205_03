@@ -6,55 +6,46 @@ import java.util.stream.Collectors;
 public class Calc {
 
     public static int run(String exp) {
+        // 괄호 제거
+        exp = stripOuterBrackets(exp);
+
         // 단일항이 들어오면 바로 리턴
         if (!exp.contains(" ")) {
             return Integer.parseInt(exp);
         }
 
-        boolean needToMulti = exp.contains("*");
-        boolean needToPlus = exp.contains("+");
-        boolean needToMinus = exp.contains("-");
+        boolean needToMulti = exp.contains(" * ");
+        boolean needToPlus = exp.contains(" + ") || exp.contains(" - ");
+        boolean needToSplit = exp.contains("(") || exp.contains(")");
         boolean needToCompound = needToPlus && needToMulti;
 
-        if (needToMinus && !needToCompound && !needToMulti) {
-            exp = exp.replace("- ", "+ -");
-            String[] bits = exp.split(" \\+ ");
+        if (needToSplit) {
+            int bracketsCount = 0;
+            int splitPointIndex = -1;
 
-            int sum = 0;
-            for (int i = 0; i < bits.length; i++) {
-                sum += Integer.parseInt(bits[i]);
-            }return sum;
+            for (int i = 0; i < exp.length(); i++) {
+                if (exp.charAt(i) == '(') {
+                    bracketsCount++;
+                } else if (exp.charAt(i) == ')') {
+                    bracketsCount--;
+                }
+                if (bracketsCount == 0) {
+                    splitPointIndex = i;
+                    break;
+                }
+            }
+            String firstExp = exp.substring(0, splitPointIndex + 1);
+            String secondExp = exp.substring(splitPointIndex + 4);
 
+            return Calc.run(firstExp) + Calc.run(secondExp);
 
-        }
-
-        if (needToCompound) {
+        } else if (needToCompound) {
             String[] bits = exp.split(" \\+ ");
 
             String newExp = Arrays.stream(bits)
                     .mapToInt(Calc::run)
                     .mapToObj(e -> e + "")
                     .collect(Collectors.joining(" + "));
-
-//            String newExp = "";
-//            for (int i = 0; i < bits.length; i++) {
-//                int result = Calc.run(bits[i]);
-//                newExp += result;
-//                if (i < bits.length - 1) {
-//                    newExp += " + ";
-//                }
-//            }
-
-
-//            StringBuilder newExpBuilder = new StringBuilder();
-//            for (int i = 0; i < bits.length; i++) {
-//                newExpBuilder.append(Calc.run(bits[i]));
-//                if (i < bits.length - 1) {
-//                    newExpBuilder.append(" + ");
-//                }
-//            }
-//            String newExp = newExpBuilder.toString();
-
 
             return run(newExp);
         }
@@ -71,7 +62,6 @@ public class Calc {
             }
 
             return sum;
-
         } else if (needToMulti) {
             String[] bits = exp.split(" \\* ");
 
@@ -85,6 +75,19 @@ public class Calc {
         }
 
         throw new RuntimeException("해석 불가 : 올바른 계산식이 아닙니다");
+    }
+
+    private static String stripOuterBrackets(String exp) {
+
+        int outerBracketsCount = 0;
+
+        while (exp.charAt(outerBracketsCount) == '(' && exp.charAt(exp.length() - 1 - outerBracketsCount) == ')') {
+            outerBracketsCount++;
+        }
+
+        if (outerBracketsCount == 0) return exp;
+
+        return exp.substring(outerBracketsCount, exp.length() - outerBracketsCount);
     }
 
 }
